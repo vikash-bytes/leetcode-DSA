@@ -1,0 +1,55 @@
+import java.util.*;
+
+class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> result = new ArrayList<>();
+        if (s == null || s.length() == 0 || words == null || words.length == 0) return result;
+
+        int wordLen = words[0].length();
+        int wordCount = words.length;
+        int totalLen = wordLen * wordCount;
+
+        // Frequency map of words
+        Map<String, Integer> wordMap = new HashMap<>();
+        for (String w : words) {
+            wordMap.put(w, wordMap.getOrDefault(w, 0) + 1);
+        }
+
+        // We need to check substrings starting at different offsets
+        for (int i = 0; i < wordLen; i++) {
+            int left = i, right = i;
+            int count = 0;
+            Map<String, Integer> windowMap = new HashMap<>();
+
+            while (right + wordLen <= s.length()) {
+                String word = s.substring(right, right + wordLen);
+                right += wordLen;
+
+                if (wordMap.containsKey(word)) {
+                    windowMap.put(word, windowMap.getOrDefault(word, 0) + 1);
+                    count++;
+
+                    // If word frequency exceeds, shrink from left
+                    while (windowMap.get(word) > wordMap.get(word)) {
+                        String leftWord = s.substring(left, left + wordLen);
+                        windowMap.put(leftWord, windowMap.get(leftWord) - 1);
+                        count--;
+                        left += wordLen;
+                    }
+
+                    // If we matched all words
+                    if (count == wordCount) {
+                        result.add(left);
+                    }
+                } else {
+                    // Reset window
+                    windowMap.clear();
+                    count = 0;
+                    left = right;
+                }
+            }
+        }
+
+        return result;
+    }
+}
